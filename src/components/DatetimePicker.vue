@@ -82,6 +82,10 @@
         type: String,
         default: 'YYYY-MM-DD HH:mm:ss'
       },
+      ioFormat: {
+        type: String,
+        default: null
+      },
       timePickerFormat: {
         type: String,
         default: '24hr'
@@ -108,11 +112,15 @@
         selectedDatetime: null
       }
     },
-    created () {
-      if (this.datetime instanceof Date) {
-        this.selectedDatetime = this.datetime
-      } else if (this.datetime instanceof String) {
-        this.selectedDatetime = moment(this.datetimeString, this.format)
+    watch: {
+      datetime: function (val) {
+        if (val instanceof Date) {
+          this.selectedDatetime = val
+          this.dateSelected = true
+        } else if (val instanceof String || typeof val === 'string') {
+          this.selectedDatetime = moment(val, this.ioFormat)
+          this.dateSelected = true
+        }
       }
     },
     computed: {
@@ -158,7 +166,7 @@
         this.activeTab = 0
         this.$refs.timer.selectingHour = true
 
-        this.$emit('input', this.selectedDatetime)
+        this.$emit('input', this.selectedDatetime instanceof moment ? this.selectedDatetime.toDate() : this.selectedDatetime)
       },
       clearHandler () {
         this.display = false
